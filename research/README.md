@@ -30,13 +30,13 @@ These are planned project names, not claims that completed projects already exis
 
 For every investigation, document:
 
-1. **Objective** — what question is being tested?
-2. **Scope** — which systems and data are authorised?
-3. **Environment** — OS, versions, tools, and configuration.
-4. **Method** — exact steps needed to reproduce the work.
-5. **Observations** — what happened, including unexpected results.
-6. **Conclusion** — what the evidence supports and what it does not.
-7. **References** — primary documentation and relevant sources.
+1. **Objective** - what question is being tested?
+2. **Scope** - which systems and data are authorised?
+3. **Environment** - OS, versions, tools, and configuration.
+4. **Method** - exact steps needed to reproduce the work.
+5. **Observations** - what happened, including unexpected results.
+6. **Conclusion** - what the evidence supports and what it does not.
+7. **References** - primary documentation and relevant sources.
 
 ## Handling rules
 
