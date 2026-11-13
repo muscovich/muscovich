@@ -1,6 +1,6 @@
 # RESEARCH ARCHIVE
 
-**Independent security research · Systems · Network analysis**
+Independent security research | Systems | Network analysis
 
 > The interesting things rarely exist at the surface.
 
@@ -10,7 +10,7 @@
 
 An independent learner documenting practical work across cybersecurity and computer systems.
 
-This profile is a working archive: experiments, technical notes, reproducible demonstrations, and questions worth investigating. The focus is on understanding how systems behave—not collecting tools or making unsupported claims.
+This profile is a working archive: experiments, technical notes, reproducible demonstrations, and questions worth investigating. The focus is on understanding how systems behave, not collecting tools or making unsupported claims.
 
 ## AREAS OF INTEREST
 
@@ -46,4 +46,4 @@ This is a learning and research archive. Project status and experience are descr
 
 ---
 
-<sub>INDEPENDENT STUDY · CONTROLLED EXPERIMENTS · TECHNICAL DOCUMENTATION</sub>
+<sub>INDEPENDENT STUDY | CONTROLLED EXPERIMENTS | TECHNICAL DOCUMENTATION</sub>
