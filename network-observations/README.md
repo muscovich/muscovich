@@ -8,6 +8,7 @@ This project focuses on controlled experiments, packet-level inspection, and rep
 
 - [TCP/IP model](notes/tcp-ip-model.md)
 - [DNS investigation](notes/dns-investigation.md)
+- [DNS resolution mini lab - 20 minutes](dns-resolution-mini-lab.md)
 - [Packet capture basics](labs/packet-capture.md)
 - [Lab 002 - TCP connection lifecycle and packet analysis](week-01-tcp-handshake-analysis.md)
 - [PCAP summary tool](tools/pcap-summary/README.md)
@@ -27,4 +28,4 @@ The lab documents are procedures until the experiment is actually run. Results, 
 
 ## Status
 
-Initial protocol notes, a packet-capture procedure, a TCP analysis lab, and a small PCAP parsing utility. The presence of a lab procedure does not mean the experiment has been completed.
+Initial protocol notes, DNS investigation notes, a 20-minute DNS resolution procedure, a packet-capture procedure, a TCP analysis lab, and a small PCAP parsing utility. The presence of a lab procedure does not mean the experiment has been completed.
