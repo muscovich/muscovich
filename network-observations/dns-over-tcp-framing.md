@@ -119,7 +119,7 @@ qname = b""
 for label in DOMAIN.split("."):
     encoded = label.encode("ascii")
     qname += bytes([len(encoded)]) + encoded
-qname += b"\\x00"
+qname += b"\x00"
 
 question = qname + struct.pack("!HH", 1, 1)
 txid = random.randrange(65536)
@@ -268,3 +268,23 @@ Include the lab topology, client and responder code, commands, actual packet obs
 ---
 
 **Research standard:** Explain both layers independently: what TCP does to deliver a byte stream, and what DNS means inside that stream. Do not confuse TCP segments with DNS messages.
+
+
+## 11. Execution record - independent sandbox validation
+
+**Status:** DNS-over-TCP framing and response assertions passed in an independent Linux execution container. This is not a run on the repository owner's machine.
+
+**Environment:** Linux x86_64, Python 3.13.5. The client and responder used a real TCP loopback connection on port 53536. tcpdump/Wireshark were unavailable and raw packet capture was not permitted, so no PCAP or Wireshark packet-number observations are claimed.
+
+**Code correction:** The QNAME terminator in the Python client must be the actual zero byte escape, with one backslash before x. The earlier repository version contained a doubled backslash, which would encode literal characters instead of the DNS root-label terminator. That source literal has been corrected above.
+
+**Observed result from this run:**
+
+- TCP connection established to 127.0.0.1:53536 and the framed DNS query was exchanged successfully.
+- Transaction ID: 0xf5d5 (randomly generated for this run).
+- Response flags: 0x8180; question count: 1; answer count: 0.
+- The responder returned a deliberate NOERROR response with no answer records.
+- DNS message length: 33 bytes; two-byte TCP length prefix decoded to 33.
+- Python assertions confirmed the transaction ID, response flag, section counts, and exact length-prefix/message-length match.
+
+**Capture limitation:** The TCP SYN/SYN-ACK/ACK handshake, TCP segment layout, DNS decode, and FIN teardown still need visual confirmation in Wireshark on a host with capture tools. The socket-level exchange and framing checks passed; no PCAP is claimed.
