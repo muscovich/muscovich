@@ -74,7 +74,7 @@ def encode_name(name):
         if not part or len(part) > 63:
             raise ValueError("Invalid DNS label")
         encoded += bytes([len(part)]) + part
-    return encoded + b"\\x00"
+    return encoded + b"\x00"
 
 def query_dns(name):
     txid = random.randrange(65536)
@@ -229,3 +229,24 @@ Include the cache design, TTL setting, commands, actual client output, packet co
 ---
 
 **Research standard:** Use the capture to distinguish a cache hit from a real DNS exchange. State what your evidence supports and identify what the small lab does not model.
+
+
+## 11. Execution record - independent sandbox validation
+
+**Status:** Cache behaviour and DNS message assertions passed in an independent Linux execution container. This is not a run on the repository owner's machine.
+
+**Environment:** Linux x86_64, Python 3.13.5. The test used real UDP loopback sockets on port 53535, a 10-second TTL, and the exercise's 2-second then 9-second wait sequence. tcpdump/Wireshark were unavailable and raw packet capture was not permitted, so no PCAP or Wireshark packet counts are claimed.
+
+**Code correction:** The QNAME terminator in the Python client must be the actual zero byte escape, with one backslash before x. The earlier repository version contained a doubled backslash, which would append literal characters rather than the DNS root-label terminator. That source literal has been corrected above.
+
+**Observed result from this run:**
+
+- Lookup 1: cache MISS; one UDP DNS query sent.
+- Lookup 2, after 2 seconds: cache HIT; no new DNS query sent.
+- Lookup 3, after a further 9 seconds: cache entry expired; a new UDP DNS query sent.
+- Responder query count: 2 for 3 lookups.
+- Configured and returned TTL: 10 seconds.
+- Returned address: 127.0.0.1.
+- Python assertions confirmed the MISS, HIT, MISS sequence and exactly two responder requests.
+
+**Capture limitation:** The expected packet-level corroboration (two query/response pairs) still needs to be inspected with tcpdump/Wireshark on a host that has those tools. The two responder requests were counted directly by the local test responder; no PCAP-derived count is claimed.
