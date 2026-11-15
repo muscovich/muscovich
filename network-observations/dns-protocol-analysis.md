@@ -81,7 +81,7 @@ while True:
     question = data[12:]
 
     # Compression pointer to the QNAME at offset 12.
-    answer_name = b"\\xc0\\x0c"
+    answer_name = b"\xc0\x0c"
 
     # A / IN record, TTL 30 seconds, RDATA 127.0.0.1.
     answer_data = (
@@ -122,7 +122,7 @@ qname = b""
 for label in DOMAIN.split("."):
     encoded = label.encode("ascii")
     qname += bytes([len(encoded)]) + encoded
-qname += b"\\x00"
+qname += b"\x00"
 
 question = qname + struct.pack("!HH", 1, 1)  # QTYPE A, QCLASS IN.
 packet = header + question
@@ -310,3 +310,23 @@ Only publish observations you verified. Do not upload captures containing sensit
 ---
 
 **Research standard:** Explain what the captured bytes demonstrate. Do not rely solely on automated protocol summaries, and do not report a packet or finding unless you observed it.
+
+
+## 11. Execution record - independent sandbox validation
+
+**Status:** Python protocol exchange and assertions passed in an independent Linux execution container. This is not a run on the repository owner's machine.
+
+**Environment:** Linux x86_64, Python 3.13.5. The container did not provide tcpdump or Wireshark, and raw packet capture was not permitted. Therefore, no PCAP file or Wireshark packet-number observations are claimed. UDP/TCP exchanges were exercised through real loopback sockets and the received DNS message bytes were parsed and checked by Python assertions.
+
+**Code correction:** The byte-string terminator and DNS compression pointer must be actual Python byte escapes, with one backslash before x in each escape. The earlier repository version contained doubled backslashes, which encode literal backslash characters instead of the intended DNS bytes. Those source literals have been corrected above.
+
+**Observed result from this run:**
+
+- Client and responder exchanged one DNS query and response over UDP loopback port 53535.
+- Transaction ID: 0x97ff (randomly generated for this run).
+- Response flags: 0x8180 (QR=1, standard response, RCODE=0).
+- Question count: 1; answer count: 1.
+- Answer: A / IN, TTL 30 seconds, address 127.0.0.1.
+- Python assertions for the transaction ID, flags, counts, record fields, TTL, and address passed.
+
+**Capture limitation:** Wireshark display-filter and PCAP inspection steps remain to be performed on a host with tcpdump/Wireshark. The values above are from the actual loopback socket exchange, not from a fabricated packet capture.
