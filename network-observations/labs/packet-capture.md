@@ -55,3 +55,70 @@ After completing the lab, you should be able to identify a DNS query and respons
 ## Do not fabricate results
 
 This file is a lab procedure, not a report of a completed experiment. Add actual observations only after running the exercise. Do not commit raw captures unless they have been checked for sensitive information.
+
+---
+## Execution record - controlled sandbox attempt
+
+**Validation status:** Attempted; packet capture could not be completed in the available sandbox.
+
+This record documents an actual tool and permission check in an isolated Linux environment. It is not a capture from my personal computer or home network.
+
+### Environment checked
+
+- Date/time: 2026-11-16 09:16 UTC
+- Operating system: Linux x86_64
+- Kernel: 6.18.57
+- Python: 3.13.5
+
+### Tool availability
+
+The following checks were run with `command -v`:
+
+| Tool | Result |
+| --- | --- |
+| Wireshark | Not installed |
+| tshark | Not installed |
+| tcpdump | Not installed |
+| dig | Not installed |
+| nslookup | Not installed |
+
+### Capture permission test
+
+A Python attempt to open an `AF_PACKET` raw capture socket returned:
+
+```text
+PermissionError: [Errno 1] Operation not permitted
+```
+
+This confirms that the sandbox does not grant the packet-capture permission required for this method. It does not indicate a fault with the user's computer or network.
+
+### Observation worksheet
+
+| Field | Actual observation |
+| --- | --- |
+| Date and time | 2026-11-16 09:16 UTC |
+| Operating system | Linux x86_64, kernel 6.18.57 |
+| Wireshark version | Not available |
+| Capture interface | Not selected; capture tools unavailable |
+| Resolver used | Not established |
+| Query name and record type | Not queried; DNS client tools unavailable |
+| Response code | Not observed |
+| Transport protocol | Not observed |
+| Query and response packet numbers | Not available; no capture produced |
+
+### Interpretation
+
+I could verify that the required capture tools were absent and that raw packet capture was denied by the sandbox. No DNS query/response packet pair was collected, so there is no evidence from which to report a transaction ID, record type, response code, or packet number.
+
+The lab therefore remains incomplete as a packet-analysis exercise. The failed capture attempt is a genuine environment observation, not evidence that DNS or packet capture is broken on the user's machine.
+
+### What remains to complete locally
+
+1. Install Wireshark on the computer being used for the lab.
+2. Capture on the interface carrying the computer's own test traffic.
+3. Run `nslookup example.com` while the capture is active.
+4. Stop the capture and apply the `dns` display filter.
+5. Record the matching query and response fields in the worksheet above.
+6. Do not publish the raw capture; redact any private network information in the written report.
+
+**Evidence boundary:** No PCAP was created, no packets were inspected, and no DNS result is claimed in this record.
