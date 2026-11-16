@@ -217,3 +217,77 @@ When recording completed work, use: objective; scope; environment; method; obser
 - Python socket documentation: https://docs.python.org/3/library/socket.html
 - BIND 9 manual pages (including `dig`): https://bind9.readthedocs.io/en/latest/manpages.html
 - systemd-resolved documentation: https://www.freedesktop.org/software/systemd/man/latest/resolved.conf.html
+
+---
+## Execution record - controlled sandbox attempt
+
+**Validation status:** Attempted; external name resolution was unavailable in the isolated sandbox.
+
+This is a record of commands and tests run in an isolated Linux environment. It is not a record of DNS behaviour on my personal computer or home network.
+
+### Environment
+
+- Date/time: 2026-11-16 09:16 UTC
+- Operating system: Linux x86_64
+- Kernel: 6.18.57
+- Python: 3.13.5
+- `dig`: not installed
+- `nslookup`: not installed
+
+### Task 1 - Identify the local resolver
+
+The resolver configuration was not copied into this report because it can contain environment-specific infrastructure addresses. No upstream resolver identity was independently established during this attempt.
+
+### Task 2 - Query A and AAAA records
+
+The required `dig` client was unavailable. I therefore could not collect an A response, an AAAA response, DNS status codes, answer records, TTLs, resolver identity, or query times.
+
+### Task 3 - Compare two lookups
+
+This comparison could not be performed because the command-line DNS client was unavailable and the environment could not resolve the test name through the operating system resolver. No TTL values were observed.
+
+### Task 4 - Compare with Python name resolution
+
+The Python test used the lab's `socket.getaddrinfo()` approach against `example.com`. The call failed with:
+
+```text
+socket.gaierror: [Errno -3] Temporary failure in name resolution
+```
+
+This is the actual error returned by the sandbox. It means the name-resolution attempt failed in this environment. It does not establish whether the domain itself was unavailable, whether a resolver was reachable, or whether the user's computer would experience the same result.
+
+### Observation worksheet
+
+| Field | Actual observation |
+| --- | --- |
+| Date and time | 2026-11-16 09:16 UTC |
+| Operating system / environment | Linux x86_64, isolated sandbox |
+| Python version | 3.13.5 |
+| `dig` version | Not installed |
+| Resolver information observed | No upstream resolver independently identified |
+| A query response status | Not observed |
+| A record address(es) and TTL | Not observed |
+| AAAA query response status | Not observed |
+| AAAA answer or empty answer | Not observed |
+| First A lookup output | Not run; `dig` unavailable |
+| Second A lookup output | Not run |
+| Python IPv4 address(es) | None returned; lookup failed |
+| Python IPv6 address(es) | None returned; lookup failed |
+| Errors or differences | `socket.gaierror: [Errno -3] Temporary failure in name resolution` |
+
+### Analysis
+
+1. An A record contains an IPv4 address. An AAAA record contains an IPv6 address.
+2. The answering resolver could not be identified from a successful `dig` response because `dig` was unavailable and no successful lookup was obtained.
+3. No TTL comparison is possible. A TTL comparison requires actual DNS answer records from both queries.
+4. Python returned no addresses because `getaddrinfo()` failed. This is not a meaningful comparison with `dig`, since no successful `dig` answer was collected.
+5. `getaddrinfo()` returns socket address information rather than the DNS answer section. Its result does not expose DNS record TTLs.
+6. A faster second lookup alone would not prove caching. Stronger evidence would include repeated controlled queries, observed DNS packets, the same resolver path, and TTL behaviour consistent with a cached answer.
+
+### Conclusion and limitations
+
+The Python resolver call failed in this sandbox, and the DNS command-line utilities were not installed. Consequently, the A/AAAA comparison, TTL experiment, and successful resolver comparison remain unverified. I have not substituted expected public DNS answers for observations.
+
+To complete the experiment on the user's computer, install the DNS utilities, run the A and AAAA commands, repeat the A query after the pause, and run `dns_check.py`. Record the actual outputs and local resolver context. The results may differ from this sandbox because DNS configuration and network access are environment-dependent.
+
+**Evidence boundary:** This is a documented failed attempt, not a completed successful DNS-resolution experiment.
