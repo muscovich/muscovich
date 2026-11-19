@@ -461,3 +461,73 @@ After running the exercise, add actual results to this file or create a separate
 ---
 
 **Research standard:** Every conclusion must be traceable to an observation or a cited technical reference. If the evidence is incomplete, say so. The purpose of this archive is to document a real learning process, including limitations and mistakes, not to present an experiment as successful before it has been performed.
+
+
+---
+
+## Execution record - local TCP socket experiment (2026-11-19)
+
+**Status:** Local application-level TCP experiment completed; packet-level handshake analysis remains pending.
+
+### Scope and environment
+
+The experiment used a TCP server and client bound only to the loopback address `127.0.0.1` in an isolated Linux environment. No external host was contacted and no third-party traffic was inspected.
+
+- Runtime: isolated Linux environment
+- Platform: Linux x86_64, glibc 2.41
+- Kernel: 6.18.57
+- Python: 3.13.5
+
+The available environment did not include tcpdump, tshark, or Wireshark. Therefore, this execution record distinguishes socket-level evidence from packet-level evidence.
+
+### Method performed
+
+A Python server bound to `127.0.0.1` on an ephemeral TCP port, listened for one client, accepted a connection, read a short test message, and returned an acknowledgement. A Python client connected to that listener, sent the test message, received the reply, and closed its socket.
+
+The actual endpoint and application observations were:
+
+| Field | Observed value |
+| --- | --- |
+| Server local endpoint | 127.0.0.1:34381 |
+| Client local endpoint | 127.0.0.1:45432 |
+| Client peer endpoint | 127.0.0.1:34381 |
+| Server accepted peer | 127.0.0.1:45432 |
+| Test payload received by server | lab-check |
+| Response received by client | ACK:lab-check |
+
+### Socket-state inspection
+
+The `ss -tan` output was inspected during and after the test.
+
+- During the test, the listener on port 34381 was visible.
+- The expected established client/server tuple was not visible in that particular `ss` snapshot. The successful application exchange is confirmed by the Python socket results, but the snapshot does not provide evidence of the established state for that tuple.
+- After the client closed, `ss -tan` showed the following TIME-WAIT tuple:
+
+```text
+TIME-WAIT  0  0  127.0.0.1:45432  127.0.0.1:34381
+```
+
+Other unrelated sockets were present in the shared environment and are not treated as part of this experiment.
+
+### Analysis
+
+The successful send and receive demonstrate that the local TCP client and server exchanged application data over the loopback interface. The endpoint information confirms the two socket endpoints and their ephemeral ports.
+
+The TIME-WAIT entry after closure is consistent with TCP connection teardown state being retained by the local TCP stack. It does not, by itself, reveal the exact FIN/ACK packet sequence.
+
+This experiment does not prove that a three-way handshake was captured. No packet capture was produced, and no SYN, SYN-ACK, final ACK, FIN, or RST packet numbers or timestamps are available.
+
+### Limitations
+
+- No packet capture utility was installed.
+- No PCAP file was created.
+- No Wireshark display filters were applied.
+- No TCP sequence or acknowledgement numbers were inspected.
+- The `ss` snapshot during the exchange did not show the expected established tuple.
+- The test covers IPv4 loopback socket behaviour only; it does not represent a physical Ethernet or Wi-Fi path.
+
+### Remaining work
+
+Repeat Tasks 1, 3, and 4 from the original procedure on an authorised Linux or WSL2 environment with a working capture interface and capture utility. Capture a controlled local TCP connection and inspect the actual SYN, SYN-ACK, ACK, and teardown packets. Add packet numbers, timestamps, flags, and sequence/acknowledgement observations only after inspecting that capture.
+
+**Evidence boundary:** The local application-level TCP exchange was completed in the isolated environment. Packet-level TCP handshake and teardown analysis remain incomplete. This is not a claim that the user ran the experiment on their own computer.
