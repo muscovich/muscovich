@@ -122,3 +122,54 @@ The lab therefore remains incomplete as a packet-analysis exercise. The failed c
 6. Do not publish the raw capture; redact any private network information in the written report.
 
 **Evidence boundary:** No PCAP was created, no packets were inspected, and no DNS result is claimed in this record.
+
+
+---
+
+## Execution record - isolated environment check (2026-11-19)
+
+**Status:** Attempted; live packet-capture portion blocked by environment limitations.
+
+### Environment
+
+- Runtime: isolated Linux environment
+- Platform: Linux x86_64, glibc 2.41
+- Kernel: 6.18.57
+- Python: 3.13.5
+
+### Tool checks
+
+The following tools were checked for availability:
+
+| Tool | Result |
+| --- | --- |
+| Wireshark | Not installed |
+| tshark | Not installed |
+| tcpdump | Not installed |
+| dig | Not installed |
+| nslookup | Not installed |
+
+A Python name-resolution check was also attempted:
+
+```text
+socket.getaddrinfo("example.com", 443, type=socket.SOCK_STREAM)
+gaierror: [Errno -3] Temporary failure in name resolution
+```
+
+### Actual observations
+
+- No packet-capture utility was available in the environment.
+- DNS name resolution for the test hostname failed with a temporary resolver error.
+- No DNS query/response packet pair was collected.
+- No PCAP file was produced.
+- No transaction ID, DNS response code, query type from a capture, or packet number can be reported.
+
+### Interpretation
+
+The attempt established that this isolated environment could not perform the intended live capture. The resolver error is an observation about this environment at this time; it is not evidence that DNS is generally unavailable or that the user's own computer has a DNS fault.
+
+### Remaining work
+
+Run the original procedure on the user's own authorised machine with Wireshark or tcpdump available. Capture a single controlled lookup, inspect the query and matching response, and fill in the original observation worksheet from the actual capture.
+
+**Evidence boundary:** This lab was attempted but is not complete. No live capture or packet-level DNS analysis is claimed.
