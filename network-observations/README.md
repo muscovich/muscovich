@@ -15,6 +15,8 @@ This project focuses on controlled experiments, packet-level inspection, and rep
 - [Lab 002 - TCP connection lifecycle and packet analysis](week-01-tcp-handshake-analysis.md)
 - [TCP retransmission and acknowledgement analysis](tcp-retransmission-analysis.md)
 - [HTTP request and response inspection on loopback](http-loopback-inspection.md)
+- [Traceroute and ICMP path analysis](traceroute-icmp-path-analysis.md)
+- [TLS handshake and certificate inspection](tls-handshake-certificate-inspection.md)
 - [PCAP summary tool](tools/pcap-summary/README.md)
 - [PCAP summary parser validation notes](tools/pcap-summary/validation-notes.md)
 
@@ -29,8 +31,10 @@ The lab documents are procedures until the experiment is actually run. Results, 
 - Execute the TCP connection lifecycle lab and record a redacted packet sequence.
 - Execute the TCP retransmission analysis using an authorised capture and record actual sequence/acknowledgement evidence.
 - Run the local HTTP inspection and document actual request/response and packet observations.
+- Run traceroute and compare hop responses and RTTs across two limited traces.
+- Inspect a TLS handshake and certificate verification result using a normal client connection.
 - Extend the PCAP summary tool with protocol and endpoint statistics, with tests for supported and unsupported formats.
 
 ## Status
 
-Initial protocol notes, DNS investigation notes, DNS resolution and cache procedures, DNS-over-TCP framing, packet-capture basics, a TCP connection lifecycle lab, new TCP retransmission and local HTTP inspection procedures, a small PCAP parsing utility, and a controlled synthetic-fixture validation record for the parser. The parser validation does not represent a live packet-capture experiment or validation on the user's computer. The presence of a lab procedure does not mean the experiment has been completed.
+Initial protocol notes, DNS investigation notes, DNS resolution and cache procedures, DNS-over-TCP framing, packet-capture basics, a TCP connection lifecycle lab, TCP retransmission and local HTTP inspection procedures, new traceroute/ICMP and TLS handshake/certificate inspection procedures, a small PCAP parsing utility, and a controlled synthetic-fixture validation record for the parser. The parser validation does not represent a live packet-capture experiment or validation on the user's computer. The presence of a lab procedure does not mean the experiment has been completed.
