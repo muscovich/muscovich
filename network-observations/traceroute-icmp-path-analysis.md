@@ -155,3 +155,56 @@ Document destination, scope, OS, traceroute implementation, exact command, obser
 ---
 
 **Research standard:** A traceroute shows responding hops, not necessarily every router or the physical route. Treat missing responses as unknown until corroborated by other evidence.
+
+
+## 12. Completion notes - analysis and evidence status
+
+**Completion type:** Desk-based analysis of the procedure and protocol questions.  
+**Execution status:** No traceroute output or packet capture from the user's computer was supplied. The live observation fields below are intentionally not invented.
+
+### Environment and execution record
+
+| Item | Record |
+|---|---|
+| Target in procedure | `example.com` |
+| User operating system | Not confirmed in this write-up |
+| Command executed on user's device | Not supplied |
+| Actual responding hops | Not collected |
+| Actual RTT measurements | Not collected |
+| Wireshark capture | Not supplied |
+| Evidence status | Requires local execution |
+
+### Analysis answers
+
+1. **What does IPv4 TTL limit?**  
+   It limits how many router hops an IPv4 packet can pass through before it is discarded. Each forwarding router decrements the TTL.
+
+2. **Why does traceroute start with a small TTL and increase it?**  
+   The first probe expires near the source, then each later probe is allowed one more hop. This makes successive routers reveal themselves through Time Exceeded responses.
+
+3. **What does ICMP Time Exceeded (Type 11, Code 0) communicate?**  
+   It indicates that a packet's TTL expired in transit. A router commonly sends this response to the source and includes part of the original packet so the probe can be identified.
+
+4. **Why might a hop display `*` even though later hops respond?**  
+   That router may filter, rate-limit, or deprioritise diagnostic responses. A later router can still return a response. The asterisk is a missing probe response, not proof that forwarding stopped.
+
+5. **Why can Windows `tracert` and Linux `traceroute` show different results?**  
+   Windows `tracert` normally uses ICMP Echo probes, while common Linux traceroute defaults to UDP probes. Routers and firewalls may treat these probe types differently. Options and timing can also differ.
+
+6. **What does RTT measure, and why is it not necessarily router processing time?**  
+   RTT measures elapsed time from sending a probe until its response returns. It includes forward-path delay, router handling, return-path delay, queuing, and scheduling, not just time spent processing at the router.
+
+7. **Why might two traces show different responding hops?**  
+   Routes can change, load balancing can select different paths, and ICMP responses can be filtered or rate-limited. Different probe timing can also affect which responses arrive.
+
+8. **What can be concluded if the destination is not reached within the hop limit?**  
+   Only that the trace did not receive a destination response within the configured limit. It does not establish that the destination is offline or unreachable by every application.
+
+9. **Why is traceroute not proof of the complete physical route?**  
+   It shows devices that respond to the probes. Some routers remain silent, return paths may differ, and the reported addresses do not reveal physical links or every forwarding device.
+
+### Evidence-based conclusion
+
+Traceroute uses increasing TTL values to prompt intermediate routers to return ICMP Time Exceeded messages. Its output is useful for identifying responding hops and measuring probe RTT, but missing responses and changing paths must be interpreted cautiously. No claim about a particular route, hop count, or latency is made here because the user's command output and packet capture were not available.
+
+**Follow-up:** Run the command from the target machine twice, save the output privately, and replace the uncollected fields with the observed hop addresses (redacted), RTTs, and timeouts.
