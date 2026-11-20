@@ -37,4 +37,6 @@ The lab documents are procedures until the experiment is actually run. Results, 
 
 ## Status
 
-Initial protocol notes, DNS investigation notes, DNS resolution and cache procedures, DNS-over-TCP framing, packet-capture basics, a TCP connection lifecycle lab, TCP retransmission and local HTTP inspection procedures, new traceroute/ICMP and TLS handshake/certificate inspection procedures, a small PCAP parsing utility, and a controlled synthetic-fixture validation record for the parser. The parser validation does not represent a live packet-capture experiment or validation on the user's computer. The presence of a lab procedure does not mean the experiment has been completed.
+Initial protocol notes, DNS investigation notes, DNS resolution and cache procedures, DNS-over-TCP framing, packet-capture basics, TCP connection lifecycle and retransmission exercises, local HTTP inspection, traceroute/ICMP and TLS handshake/certificate inspection procedures, and a small PCAP parsing utility with controlled synthetic-fixture validation notes.
+
+The traceroute and TLS documents now include desk-based completion notes and answers to their analysis questions. They do not claim live experiments were performed: user-device command output, packet captures, negotiated TLS parameters, certificate details, hop addresses, and RTT measurements remain uncollected. The parser validation uses synthetic fixtures and does not represent a live capture or validation on the user's computer.
