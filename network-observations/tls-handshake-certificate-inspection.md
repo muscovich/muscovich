@@ -165,3 +165,65 @@ Document destination and scope, tool versions, exact commands, negotiated TLS de
 ---
 
 **Research standard:** A visible TLS handshake provides evidence about negotiation and authentication for one connection. It does not, by itself, establish the overall security of the endpoint or application.
+
+
+## 12. Completion notes - analysis and evidence status
+
+**Completion type:** Desk-based analysis of the procedure and protocol questions.  
+**Execution status:** No OpenSSL/curl output or packet capture from the user's computer was supplied. Negotiated values and certificate details are not invented.
+
+### Environment and execution record
+
+| Item | Record |
+|---|---|
+| Target in procedure | `example.com:443` |
+| User operating system | Not confirmed in this write-up |
+| OpenSSL output from user's device | Not supplied |
+| curl output from user's device | Not supplied |
+| Negotiated TLS version and cipher | Not collected |
+| Certificate chain and SAN | Not collected |
+| Verification result | Not collected |
+| Wireshark capture | Not supplied |
+| Evidence status | Requires local execution |
+
+### Analysis answers
+
+1. **What is the purpose of ClientHello?**  
+   It begins the handshake and offers the client's supported TLS parameters, including protocol versions, cipher suites, key shares, and extensions.
+
+2. **What information does ServerHello establish?**  
+   It indicates the server's selected connection parameters and contributes to establishing the shared cryptographic keys.
+
+3. **What is the role of SNI?**  
+   SNI allows a client to indicate the hostname it is trying to reach during the TLS handshake, which helps a server hosting multiple names select the appropriate configuration and certificate. Encrypted ClientHello can protect this information where supported and used.
+
+4. **What does ALPN negotiate?**  
+   It selects the application protocol to use over the TLS connection, for example HTTP/2 or HTTP/1.1.
+
+5. **Why is receiving a certificate different from successfully verifying it?**  
+   Receiving only means the server sent certificate data. Verification additionally checks whether the chain leads to a trusted authority, whether the certificate is valid for the requested hostname, and whether relevant validity and policy checks pass.
+
+6. **Why check SAN against the requested hostname?**  
+   The Subject Alternative Name extension contains the identities the certificate is valid for. The client must verify that the hostname it intended to contact is covered by the certificate.
+
+7. **Why might a passive TLS 1.3 capture show ClientHello and ServerHello but not readable certificate details?**  
+   In TLS 1.3, handshake messages after ServerHello, including Certificate in a certificate-authenticated full handshake, are encrypted. A passive observer without authorised session secrets cannot normally read their contents.
+
+8. **What is the difference between TLS encryption and certificate-based authentication?**  
+   Encryption protects confidentiality and integrity of traffic. Certificate-based authentication uses a certificate and proof of private-key possession to authenticate an endpoint's identity. A TLS connection can also use a pre-shared key (PSK) mode rather than a certificate.
+
+9. **Why should certificate verification not be disabled to make a connection succeed?**  
+   Disabling verification can allow an attacker or intermediary to impersonate the server without the client detecting the identity/trust failure. The cause of the verification error should be investigated instead.
+
+10. **What can be concluded from a successful TLS handshake?**  
+    It supports the conclusion that the client and server negotiated a TLS session and completed the required handshake for that connection. It does not prove the application is free of vulnerabilities, the server is correctly configured in every respect, or all users and connections are protected.
+
+### Expected packet-level interpretation
+
+For a full TLS 1.3 handshake using certificate authentication, the client sends ClientHello; the server responds with ServerHello and then encrypted handshake messages including EncryptedExtensions, Certificate, CertificateVerify, and Finished. Application data is protected after the handshake. A resumed PSK handshake can have a different message sequence and may omit the certificate exchange.
+
+### Evidence-based conclusion
+
+TLS handshake inspection can establish which parameters a particular client offered and which the server selected, while certificate verification establishes whether the client accepted the server identity under its trust and hostname checks. A passive TLS 1.3 capture does not expose all handshake contents or application data. No particular negotiated version, cipher suite, certificate identity, or verification result is claimed here because the user's command output and capture were not available.
+
+**Follow-up:** Run the OpenSSL and curl commands from the target machine with verification enabled, then add the actual negotiated values, certificate SAN/issuer, verification result, and Wireshark observations.
