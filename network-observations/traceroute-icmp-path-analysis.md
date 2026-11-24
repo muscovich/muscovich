@@ -208,3 +208,69 @@ Document destination, scope, OS, traceroute implementation, exact command, obser
 Traceroute uses increasing TTL values to prompt intermediate routers to return ICMP Time Exceeded messages. Its output is useful for identifying responding hops and measuring probe RTT, but missing responses and changing paths must be interpreted cautiously. No claim about a particular route, hop count, or latency is made here because the user's command output and packet capture were not available.
 
 **Follow-up:** Run the command from the target machine twice, save the output privately, and replace the uncollected fields with the observed hop addresses (redacted), RTTs, and timeouts.
+
+
+---
+
+## 13. Extended analysis completion - probe interpretation (2026-11-25)
+
+**Completion type:** Desk-based protocol analysis and interpretation worksheet.  
+**Execution status:** No traceroute output or packet capture from the user's computer was supplied. No route or latency result is claimed.
+
+### Probe and response interpretation
+
+Traceroute does not ask routers to send a normal application response. It sends probes with a deliberately limited IPv4 TTL. When a forwarding router decrements a probe's TTL to zero, the router should discard that probe and may send an ICMP Time Exceeded response to the source.
+
+The quoted portion of the original packet in an ICMP error helps the source associate the response with a probe. In a packet capture, useful correlation fields include the ICMP type and code, the quoted original IP header, the probe destination, and (for UDP probes) the quoted UDP ports. Timing and probe order provide additional context, but should not be used as the only correlation method.
+
+### Distinguishing common outcomes
+
+| Trace observation | What it supports | What it does not prove |
+|---|---|---|
+| A hop address and RTT are displayed | A response associated with that probe arrived from the displayed source address | That the address identifies a physical router or the only path used |
+| `*` for one probe | No matching response arrived before the timeout | That the router is offline or did not forward traffic |
+| A later hop responds after an earlier `*` | At least one later response was received | That the earlier router dropped ordinary application traffic |
+| RTT increases at a hop | The probe/response round trip took longer for that sample | That the displayed router alone caused the increase |
+| Two traces show different hops | The observed responses differed between runs | That a fault or malicious change occurred |
+| Destination not reached within 12 hops | No destination response was observed within the configured hop limit | That the destination is unreachable by every protocol or route |
+
+### Illustrative example - not a measured trace
+
+The following is a hypothetical output pattern used only to explain interpretation:
+
+```text
+ 1   2 ms   1 ms   2 ms   192.0.2.1
+ 2   *      *      *      Request timed out
+ 3   8 ms   9 ms   8 ms   198.51.100.3
+```
+
+The addresses are documentation-only examples. This pattern would support the conclusion that probes at hop 1 and hop 3 received responses, while the hop-2 probes did not receive responses within the configured wait period. Since hop 3 responded, the hop-2 asterisks do not demonstrate that forwarding stopped at hop 2. The second hop may have filtered or deprioritised ICMP responses while continuing to forward traffic.
+
+### RTT analysis
+
+Each RTT is the elapsed time between sending a probe and receiving its associated response. It includes the forward path, response generation and scheduling, the return path, and any queuing or congestion along the way. It is not a direct measurement of a router's internal forwarding time.
+
+When comparing traces, compare like with like: same source, destination, probe method, maximum hop count, timeout, and approximate time window. Even then, the result is a pair of observations, not a guarantee that all application traffic followed the same path. Per-flow load balancing may also cause probes to take different paths.
+
+### Probe implementation differences
+
+- Windows `tracert` normally uses ICMP Echo Requests.
+- Common Unix `traceroute` implementations commonly use UDP probes by default, although options can change the probe method.
+- Routers and firewalls can apply different policies to ICMP Echo, UDP, and ICMP error messages.
+- Therefore, a Windows trace and a Linux trace are not necessarily equivalent experiments. Record the exact command and implementation with each result.
+
+### Analysis questions - additional evidence checks
+
+1. **How can I distinguish name-resolution failure from a route failure?** Resolve the destination separately and record the resolver result. If name resolution fails, the trace may never send probes to the intended address. A DNS error is not evidence about the forwarding path.
+2. **Why inspect the quoted packet inside ICMP Time Exceeded?** It helps identify which original probe caused the error. This is especially useful when multiple probes are in flight or when responses arrive out of order.
+3. **Why can the response source address differ from the address I expected for a hop?** A router may source the ICMP response from a different interface than the one that received the probe. The response source is an observed address, not a complete inventory of the device.
+4. **What would strengthen a claim of an actual connectivity problem?** Correlate the trace with a permitted application-level connection test to the same destination and time window, local route information, and any relevant endpoint logs. A traceroute timeout alone is insufficient.
+5. **Why should I avoid publishing a full trace?** It can disclose internal addressing, provider infrastructure, and network topology. Keep the raw output private and publish only redacted, necessary observations.
+
+### Evidence boundary and remaining work
+
+- **Completed here:** Interpretation of the trace fields, missing-hop behaviour, RTT limitations, probe-method differences, and additional evidence requirements.
+- **Not completed:** Two actual trace runs, observed hop addresses, RTT samples, destination response, local command/version details, and ICMP packet inspection.
+- **Next step:** Run the limited command twice on an authorised connection, preserve the output privately, redact addresses, and populate the original observation table with the actual results.
+
+No real hop, RTT, timeout, route change, or packet capture is claimed.
