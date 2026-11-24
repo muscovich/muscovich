@@ -32,8 +32,8 @@ The lab documents are procedures until the experiment is actually run. Results, 
 
 - Collect redacted packet-level evidence for the TCP connection lifecycle lab; its desk-based analysis is complete.
 - Analyse an authorised capture for actual TCP retransmission and acknowledgement evidence; the desk-based analysis is complete.
-- Run the local HTTP inspection and document actual request/response and packet observations.
-- Run traceroute and compare hop responses and RTTs across two limited traces.
+- Collect actual local HTTP request/response and packet observations; desk-based protocol analysis is complete.
+- Run traceroute twice and compare actual hop responses and RTTs; desk-based probe and interpretation analysis is complete.
 - Inspect a TLS handshake and certificate verification result using a normal client connection.
 - Inspect Linux routes, neighbor-cache state, and ARP resolution on an authorised local system.
 - Review nftables chains and rules using read-only commands, then correlate them with local listening sockets.
@@ -41,6 +41,6 @@ The lab documents are procedures until the experiment is actually run. Results, 
 
 ## Status
 
-Initial protocol notes, DNS investigation notes, DNS resolution and cache procedures, DNS-over-TCP framing, packet-capture basics, TCP connection lifecycle and retransmission exercises, local HTTP inspection, traceroute/ICMP and TLS handshake/certificate inspection procedures, Linux routing/ARP and nftables firewall inspection procedures, and a small PCAP parsing utility with controlled synthetic-fixture validation notes.
+Initial protocol notes, DNS investigation notes, DNS resolution and cache procedures, DNS-over-TCP framing, packet-capture basics, TCP connection lifecycle and retransmission exercises, local HTTP inspection with desk-based analysis, traceroute/ICMP with extended desk-based analysis, and TLS handshake/certificate inspection procedures, Linux routing/ARP and nftables firewall inspection procedures, and a small PCAP parsing utility with controlled synthetic-fixture validation notes.
 
-The TCP lifecycle and retransmission, traceroute, TLS, Linux routing/ARP, and nftables documents include desk-based completion notes and answers to their analysis questions. They do not claim live experiments were performed: user-device command output, packet captures, negotiated TLS parameters, certificate details, hop addresses, and RTT measurements remain uncollected. The TCP lifecycle and retransmission procedures also still require a real packet capture before packet numbers, timestamps, sequence/acknowledgement values, or retransmission findings can be recorded. The parser validation uses synthetic fixtures and does not represent a live capture or validation on the user's computer.
+The TCP lifecycle and retransmission, HTTP loopback, traceroute, TLS, Linux routing/ARP, and nftables documents include desk-based completion notes and answers to their analysis questions. They do not claim live experiments were performed: user-device command output, packet captures, negotiated TLS parameters, certificate details, hop addresses, and RTT measurements remain uncollected. The TCP lifecycle and retransmission procedures still require real packet captures before packet numbers, timestamps, sequence/acknowledgement values, or retransmission findings can be recorded. The HTTP loopback procedure requires a local run and capture before actual response headers, body lengths, and packet segmentation can be recorded. The traceroute procedure requires two local traces before actual hop and RTT comparisons can be reported. The parser validation uses synthetic fixtures and does not represent a live capture or validation on the user's computer.
