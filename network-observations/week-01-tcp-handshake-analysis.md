@@ -531,3 +531,39 @@ This experiment does not prove that a three-way handshake was captured. No packe
 Repeat Tasks 1, 3, and 4 from the original procedure on an authorised Linux or WSL2 environment with a working capture interface and capture utility. Capture a controlled local TCP connection and inspect the actual SYN, SYN-ACK, ACK, and teardown packets. Add packet numbers, timestamps, flags, and sequence/acknowledgement observations only after inspecting that capture.
 
 **Evidence boundary:** The local application-level TCP exchange was completed in the isolated environment. Packet-level TCP handshake and teardown analysis remain incomplete. This is not a claim that the user ran the experiment on their own computer.
+
+
+---
+
+## Desk-based analysis completion (2026-11-25)
+
+**Status:** Analysis questions completed from TCP specifications and the documented loopback socket experiment. Live packet-level evidence remains pending.
+
+This section completes the conceptual analysis without presenting an uncaptured packet sequence as an observed result. The earlier execution record confirms a local application-level exchange, but no PCAP was created in that environment.
+
+### Analysis answers
+
+1. **Interface and route:** The documented socket experiment was bound to `127.0.0.1`, so the relevant path was the host's loopback interface, not a physical network adapter. The recorded endpoints were both in the IPv4 loopback range. The original DNS/HTTPS capture procedure has not been run, so its selected egress interface, default gateway, and DNS route remain unknown.
+2. **DNS query and response:** The procedure asks for A and AAAA records for `example.com`. No DNS command output or packet capture is attached to the execution record, so the actual response status, answer records, resolver, and query time cannot be stated.
+3. **Matching DNS messages:** In a capture, I would correlate a response with its query using the DNS transaction ID and question section (name, type, and class), then check direction and timing. Matching only the domain name is insufficient when multiple queries are present.
+4. **Start of TCP connection:** The initial SYN is the packet that requests a new TCP connection. It normally has SYN set and ACK clear. The local socket experiment did not capture this packet, so no frame number can be reported.
+5. **SYN-ACK acknowledgement:** The server's SYN-ACK has both SYN and ACK set. Its acknowledgement number is the client's initial sequence number plus one, acknowledging the SYN. The server also supplies its own initial sequence number.
+6. **Final ACK:** The client's final ACK acknowledges the server's SYN by acknowledging the server's initial sequence number plus one. It completes the three-way handshake and establishes the connection for normal bidirectional data transfer.
+7. **Connection teardown:** The socket experiment showed a TIME-WAIT entry after the client closed, which is consistent with TCP teardown state. However, without a capture I cannot identify the FIN/ACK exchange, determine which endpoint sent the first FIN, or provide packet numbers. A socket state is not a substitute for packet-level evidence.
+8. **HTTPS visibility:** The IP and TCP headers remain visible to an ordinary packet capture, and parts of the TLS handshake may also be visible. Application data is protected by TLS encryption, so the HTTP body and protected headers are not normally readable from the capture alone.
+9. **Why SYN count can exceed successful connections:** The script counts every IPv4 TCP packet with the SYN bit set. It can count retransmitted SYNs, half-open attempts, failed connections, and SYN-ACK packets. It also counts SYN-ACK as SYN because both flags are set. Therefore, it is a packet counter, not a successful-connection counter.
+10. **Script limitations:** It parses IPv4 only, ignores IPv6, treats the two directions as separate 4-tuples, does not track connection state, does not reassemble TCP streams, and counts flag bits rather than completed handshakes. It also relies on Scapy successfully reading the capture. Its output is a compact summary, not a full TCP session analysis.
+
+### Investigation challenge - repeated SYN without SYN-ACK
+
+Plausible explanations include a destination that is not responding, filtering on the path or host, routing failure, packet loss, an incorrect destination address or port, or a capture point that sees outbound packets but not the return path. A capture that began or ended at the wrong time can also make the exchange look incomplete.
+
+To investigate further, I would verify the selected route, confirm the destination and service are correct, inspect the local firewall rules read-only, compare captures from an authorised endpoint if available, and check whether the destination is known to be listening. A single endpoint capture cannot locate the loss or prove which device discarded a packet.
+
+### Evidence boundary and remaining work
+
+- **Completed here:** Conceptual answers, interpretation of the recorded loopback socket result, and limitations analysis.
+- **Not completed:** DNS output, route output for an external destination, PCAP generation, Wireshark packet inspection, Scapy output, and actual SYN/ACK/FIN/RST frame references.
+- **Next step:** Run the original capture procedure on a machine with an approved capture tool, then replace the unknown fields in the worksheet with redacted values from the actual capture.
+
+No packet numbers, timestamps, DNS answers, or Python counts have been invented.
