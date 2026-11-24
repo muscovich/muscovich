@@ -225,3 +225,48 @@ After running the exercise, document the objective, scope, environment, commands
 ---
 
 **Research standard:** Record the exact request and response evidence. Keep protocol observations separate from assumptions about the application or the security of a service.
+
+
+---
+
+## 12. Analysis completion - protocol interpretation (2026-11-25)
+
+**Completion type:** Desk-based analysis of the documented loopback procedure.  
+**Execution status:** No local server output, curl response, or PCAP from the user's computer was supplied. The observation table remains unfilled.
+
+### Analysis answers
+
+1. **Three components of an HTTP request line:** The method, request target, and HTTP version. For example, a request line may use `GET` as the method, `/status` as the target, and `HTTP/1.1` as the version. The example describes the protocol format, not a recorded request.
+2. **Request header versus response header:** Request headers provide context about the client's request, such as the host or accepted content types. Response headers describe the returned representation or response handling, such as content type, content length, and connection behaviour.
+3. **Meaning of 200 in this lab:** The local handler selected its normal success response for the requested path. It means the server reports that the request was successfully handled; it does not independently validate the correctness, safety, or usefulness of the application.
+4. **Meaning of 404:** The server reports that it has no resource matching the requested target. In this lab, the handler deliberately maps `/missing` to a 404 response with a synthetic text body.
+5. **Purpose of Content-Length:** It gives the message-body size in octets. In this server, the value is calculated from the byte string written as the body. Correct message framing matters because HTTP/1.1 carries messages over a persistent byte-stream transport.
+6. **Why a response may span multiple TCP segments:** TCP transports an ordered byte stream, not application message boundaries. A response may be larger than the amount of data carried in one segment, and the operating system may split or combine writes according to buffering, segmentation, and network conditions.
+7. **What Follow TCP Stream adds:** It reconstructs the stream's application bytes in sequence, making the full request and response easier to read. The packet list shows individual packets and timing; the reassembled stream shows how those packets contribute to the byte stream.
+8. **Why plain HTTP stays on loopback:** Plain HTTP does not encrypt its contents. Loopback keeps this synthetic exercise on the same machine and avoids exposing the test messages to a LAN or the public network. No real credentials, tokens, or personal data should be sent.
+9. **HTTPS visibility without TLS decryption:** A normal capture can still show network and transport metadata such as IP addresses, ports, packet sizes, and timing. Depending on the TLS version and handshake, some setup metadata may be visible, but the protected HTTP headers and body are encrypted and are not ordinarily readable as plain HTTP.
+10. **Why 200 does not prove security:** A status code reports the outcome represented by the server's response. It does not test authentication, authorisation, input validation, confidentiality, integrity, dependency safety, or whether the application returned the right data.
+
+### Expected response matrix - derived from the lab code, not observed output
+
+| Request target | Handler branch | Status selected by code | Synthetic body |
+|---|---|---:|---|
+| `/` | Default branch | 200 | `local lab: hello from the loopback server\n` |
+| `/status` | Status branch | 200 | `local lab: service is available\n` |
+| `/missing` | Missing-resource branch | 404 | `local lab: resource not found\n` |
+
+The table describes what the supplied handler is written to return. Actual client output, response headers, and packet segmentation must still be collected by running it.
+
+### Implementation detail and interpretation
+
+The handler sets `Content-Type: text/plain; charset=utf-8`, calculates `Content-Length` from the byte body, and sets `Connection: close`. Therefore, each curl invocation is expected to receive a response whose body length is based on the exact bytes emitted by the handler. The explicit close header means the server does not intend to keep that HTTP/1.1 connection open for another request.
+
+The server uses Python's basic `HTTPServer`, which handles requests synchronously. This is sufficient for a small loopback protocol demonstration, but it is not a production server and does not model concurrent request handling or hardened deployment.
+
+### Evidence boundary and remaining work
+
+- **Completed here:** Answers to all ten analysis questions, code-derived response mapping, and implementation limitations.
+- **Not completed:** Server startup on the user's device, actual curl output, capture interface confirmation, Wireshark decoding, frame numbers, TCP segment counts, and measured Content-Length values.
+- **Next step:** Run the procedure locally, compare actual responses against the code-derived matrix, and add only verified values to the observation table.
+
+No live HTTP exchange or packet capture is claimed.
