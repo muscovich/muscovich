@@ -179,3 +179,54 @@ After completing the investigation, record the scope, environment, method, actua
 ---
 
 **Research standard:** A retransmission indicator is a starting point for analysis, not a complete diagnosis. Preserve the distinction between packet evidence, interpretation, and unverified cause.
+
+
+---
+
+## Desk-based analysis completion (2026-11-25)
+
+**Status:** Conceptual analysis and a labelled synthetic sequence completed. No live or supplied PCAP was analysed for this completion.
+
+### Analysis answers
+
+1. **TCP sequence number:** A sequence number identifies the position of the first data byte carried in a TCP segment within that direction's byte stream. SYN consumes one sequence number before application data; FIN also consumes one.
+2. **Acknowledgement number:** When ACK is set, the acknowledgement number normally identifies the next sequence number (byte) the receiver expects. It is cumulative: an ACK of 2001 indicates that bytes up to 2000 have been received in order.
+3. **Duplicate ACKs and fast retransmission:** If later data arrives beyond a missing byte range, the receiver cannot advance its cumulative acknowledgement. It may send repeated ACKs for the next expected byte. Under the classic fast-retransmit rule, three duplicate ACKs can prompt the sender to retransmit the missing segment without waiting for the retransmission timer to expire. Modern TCP implementations can use additional loss-detection logic.
+4. **Timeout versus fast retransmission:** Fast retransmission is triggered by evidence such as a sufficient run of duplicate ACKs. A retransmission timeout (RTO) occurs when the sender's retransmission timer expires without the required acknowledgement progress. RTO recovery generally indicates that the sender did not receive enough timely feedback to recover earlier.
+5. **Why a Wireshark label is not proof of network loss:** Wireshark classifies packets using the sequence and acknowledgement history visible in the capture. A missing earlier packet could be due to actual network loss, capture loss, asymmetric routing, starting the capture late, or packet reordering. The label identifies a pattern in the capture, not the physical cause or location.
+6. **Starting mid-connection:** If earlier sequence data is absent, Wireshark may not have enough context to know what the receiver has already seen. This can lead to misleading missing-segment or retransmission analysis, and the first visible packet may not be the beginning of the TCP connection.
+7. **Evidence to distinguish causes:** Useful additional evidence includes a capture at the receiving endpoint, capture-drop counters, complete bidirectional visibility, TCP sequence ranges and timestamps, later cumulative ACKs, and a comparison with endpoint socket/application logs. Reordering can be suggested when the missing sequence range appears later and acknowledgements then advance; capture loss is more plausible if the capture tool reports drops. Neither conclusion should be made from one indicator alone.
+8. **No retransmissions found:** The defensible conclusion is only that the selected capture and stream contained no packets identified by the chosen filters as retransmissions. It does not prove that the path had zero packet loss or that retransmissions did not occur outside the capture window.
+
+### Synthetic sequence example - for interpretation only
+
+The following is a deliberately constructed example to demonstrate cumulative acknowledgements. It is not a real capture and must not be entered as observed evidence.
+
+Assume a sender begins application data at sequence number 1001 and sends four consecutive 1000-byte ranges:
+
+| Illustrative event | Sequence range | Receiver response |
+|---|---:|---|
+| First segment is lost before reaching the receiver | 1001-2000 | No acknowledgement progress |
+| Second segment arrives | 2001-3000 | Duplicate ACK 1001 |
+| Third segment arrives | 3001-4000 | Duplicate ACK 1001 |
+| Fourth segment arrives | 4001-5000 | Third duplicate ACK 1001 |
+| Sender retransmits the missing first segment | 1001-2000 | Receiver can now acknowledge the contiguous data through 5000 with ACK 5001 |
+
+The key point is that the receiver's cumulative ACK remains at 1001 while the initial byte range is missing, even though later ranges may have arrived and been buffered. Once the gap is filled, the acknowledgement can advance across the contiguous data already received.
+
+Real captures may show different packet timing, ACK behaviour, window updates, SACK information, or recovery behaviour. Use the actual packet fields and TCP implementation context when analysing a real stream.
+
+### Interpretation notes
+
+- Compare both sequence number and payload length to establish the byte range represented by a segment.
+- A repeated sequence range in the same direction is a useful retransmission candidate, but check timing, acknowledgements, and stream context.
+- A duplicate ACK does not automatically mean a packet was lost; reordering and other conditions can produce similar observations.
+- A capture with no retransmission indicators is still useful if its scope and limitations are documented.
+
+### Evidence boundary and remaining work
+
+- **Completed here:** Answers to all eight analysis questions, explanation of the main indicators, and a synthetic worked example.
+- **Not completed:** Selection of an actual PCAP, stream number, Wireshark version, frame numbers, timestamps, measured sequence/ACK values, and TShark output.
+- **Next step:** Run the filters against an authorised capture and replace the empty observation fields only with values verified from that capture.
+
+No live retransmission, packet loss, duplicate ACK, or recovery event is claimed.
